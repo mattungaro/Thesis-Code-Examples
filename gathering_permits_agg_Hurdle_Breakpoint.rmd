@@ -1,0 +1,657 @@
+---
+title: "Gathering_Permits_updated"
+author: "Matthew Ungaro"
+date: "3/15/2021"
+output: html_document
+---
+
+# RIBITS - Supply and Demand for Credits
+
+I took each of the eight banks and bound them together.
+
+```{r}
+library(tidyverse)
+library(knitr)
+
+# Banking - THE SUPPLY AND DEMAND FOR CREDITS
+bill <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\RIBITS_datasets\\bill_moore_mitigation_bank_(txram_1.0_bank)ledger.csv")
+mill <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\RIBITS_datasets\\mill_branch_mitigation_bank_(txram_1.0_bank)ledger.csv")
+trinity <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\RIBITS_datasets\\trinity_river_mitigation_bankledger.csv")
+bunker <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\RIBITS_datasets\\bunker_sands_mitigation_bankledger.csv")
+red <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\RIBITS_datasets\\red_oak_umbrella_mitigation_bank_-_palmer_tract_(txram_1.0_bank)ledger.csv")
+rockin <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\RIBITS_datasets\\rockink_on_chambers_creek_mitigation_bank_(txram_1.0_bank)ledger.csv")
+south1 <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\RIBITS_datasets\\south_forks_trinity_river_mitigation_bank_ten_mile_creek_tractledger.csv")
+south2 <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\RIBITS_datasets\\south_forks_trinity_river_mitigation_bankledger.csv")
+
+rib <- rbind(bill, bunker, mill, red, rockin, south1, south2, trinity)
+
+  # see if those match the original document I mdade previously:
+  all_ribits = 'C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\11.30 research\\combined_dataset\\eight_banks_updated.csv'
+  all_ribits <- read_csv(all_ribits)
+  # same number of observations. Good. 
+
+# grab unique permit numbers and see which ones exist in my ORM 2009-2019
+permit_uni <- tibble(permit= unique(rib$Permit))
+  # note the double permit entries. Did I do anything with that or did I ignore them?
+    # based on all_ribits, looks like I ignored them - rectify by detecting and adding new entries.
+        doubles <- rib %>% filter(str_detect(Permit, ','))
+```
+
+# ORM - Demand for Impacts
+
+I combined each dataset while cleaning up some of the issues with them. These datasets came from three different sources. Consequently, they all had to be fixed to fit together.
+
+```{r}
+library(tidyverse)
+csv2008 <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\ORM\\2008_Oct_to_Sep.csv")
+csv2008 <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\ORM\\2008_Oct_to_Sep.csv") %>% filter(DISTRICT == "SWF" & ACTION == "Impact")
+csv2009 <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\ORM\\2009_Oct_to_Sep.csv") %>% filter(DISTRICT == "SWF" & ACTION == "Impact")
+csv2010 <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\ORM\\2010_Oct_to_Sep.csv") %>% filter(DISTRICT == "SWF" & ACTION == "Impact")
+csv2011 <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\ORM\\2011_Oct_to_Sep.csv") %>% filter(DISTRICT == "SWF" & ACTION == "Impact")
+csv2012 <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\ORM\\2012_Jan_to_Dec.csv") %>% filter(DISTRICT == "SWF" & ACTION == "Impact")
+csv2013 <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\ORM\\2013_Oct_to_Sep.csv") %>% filter(DISTRICT == "SWF" & ACTION == "Impact")
+csv2014 <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\ORM\\2014_Oct_to_Sep.csv") %>% filter(DISTRICT == "SWF" & ACTION == "Impact")
+csv2015 <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\ORM\\2015_Oct_to_Sep.csv") %>% filter(District == "SWF" & Action == "Impact")
+csv2016 <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\ORM\\2016_Oct_to_Sep.csv") %>% filter(DISTRICT == "SWF" & ACTION == "Impact")
+csv2017 <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\ORM\\2017_Oct_to_Sep.csv") %>% filter(DISTRICT == "SWF" & ACTION == "Impact")
+csv2018 <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\ORM\\2018_Oct_to_Sep.csv") %>% filter(DISTRICT == "SWF" & ACTION == "Impact")
+csv2019 <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\ORM\\2019_Oct_to_Sep.csv")%>% filter(DISTRICT == "SWF" & ACTION == "Impact")
+
+# get rid of 2013 Oct to Dec [2012] - it is present in 2012 data
+csv2013 <- csv2013 %>% filter(str_detect(END_DATE, 'Jan')| str_detect(END_DATE, 'Feb') | str_detect(END_DATE, 'Mar') | str_detect(END_DATE, 'Apr') | str_detect(END_DATE, 'May') | str_detect(END_DATE, 'Jun') | str_detect(END_DATE, 'Jul') | str_detect(END_DATE, 'Aug')| str_detect(END_DATE, 'Sep'))
+csv2013 %>% filter(str_detect(END_DATE, 'DEC') | filter(str_detect())) # good, no october,nov,dec
+```
+
+Remember however, that 2011 still is missing three months (9 filtered permits)
+
+Data has some problems. Will check this in Excel.
+
+```{r}
+x <- tibble(problems(csv2019))
+unique(x$col)
+```
+
+All of the problems affect data for other districts. Nothing affects the data from SWF.
+
+So from 2008-2016, the data is good. AUTH_LINEAR_FT and AUTH_FILL_ACRES are our linear ft and acres.
+
+However, from 2017 to 2019, the data gets more complicated.
+
+```{r}
+csv2017 %>% filter((AUTH_FILL_ACRES == 0 | AUTH_FILL_ACRES == NA) & (AUTH_FILL_WIDTH_FT != 0 | AUTH_FILL_WIDTH_FT != NA))
+csv2017 %>% filter((AUTH_FILL_ACRES == 0 | is.na(AUTH_FILL_ACRES)) & (AUTH_FILL_WIDTH_FT != 0 | is.na(AUTH_FILL_WIDTH_FT)))
+
+csv2017$acres <- ifelse(((csv2017$AUTH_FILL_ACRES == 0 | is.na(csv2017$AUTH_FILL_ACRES)) 
+                        & (csv2017$AUTH_FILL_WIDTH_FT != 0 | is.na(csv2017$AUTH_FILL_WIDTH_FT))),(csv2017$AUTH_FILL_LENGTH_FT*csv2017$AUTH_FILL_WIDTH_FT/43560), 
+                        csv2017$AUTH_FILL_ACRES)
+                         
+
+csv2017 %>% dplyr::select(AUTH_FILL_ACRES, AUTH_FILL_LENGTH_FT, AUTH_FILL_WIDTH_FT, acres) %>% filter(AUTH_FILL_LENGTH_FT > 2)
+# Okay, now csv2017 is accurate.
+csv2017 %>% filter((AUTH_FILL_ACRES == 0 | AUTH_FILL_ACRES == NA) & (AUTH_FILL_WIDTH_FT != 0 | AUTH_FILL_WIDTH_FT != NA))
+#now we have calculated acres - acres dbl category, for everything.
+
+csv2017 %>% filter(AUTH_LINEAR_FT > 0 & AUTH_FILL_LENGTH_FT > 0)
+
+csv2017 %>% mutate(linear_ft = coalesce(AUTH_LINEAR_FT, AUTH_FILL_LENGTH_FT)) %>% dplyr::select(AUTH_LINEAR_FT, AUTH_FILL_LENGTH_FT, linear_ft) # perfect!
+csv2017 %>% mutate(linear_ft = coalesce(AUTH_LINEAR_FT, AUTH_FILL_LENGTH_FT)) -> csv2017
+
+```
+
+Second, 2018.
+
+```{r}
+csv2018 %>% filter((AUTH_FILL_ACRES == 0 | is.na(AUTH_FILL_ACRES)) & (AUTH_FILL_WIDTH_FT != 0 | is.na(AUTH_FILL_WIDTH_FT))) # 0 rows - good.
+csv2018$AUTH_LINEAR_FT %>% unique() # just NA
+csv2018 %>% mutate(linear_ft = AUTH_FILL_LENGTH_FT) -> csv2018
+
+# CSV2018 is good.
+```
+
+Third, 2019.
+
+```{r}
+csv2019 %>% filter((AUTH_FILL_ACRES == 0 | is.na(AUTH_FILL_ACRES)) & (AUTH_FILL_WIDTH_FT != 0 | is.na(AUTH_FILL_WIDTH_FT))) #9 Rows that are ONLY width, not length - SWF-2019-00173 - 	LEAP Pipeline Project
+# This is not in RIBITS, so disregard
+
+# 0 rows - good - now acres is important, not width.
+
+# csv2019 only has auth_fill_length_ft not linear feet
+
+csv2019  %>% mutate(linear_ft = AUTH_FILL_LENGTH_FT) -> csv2019
+```
+
+# now to put them together
+
+```{r}
+new_csv1 <- csv2008 %>% filter(ACTION == "Impact") %>% dplyr::select(PERMIT_AUTHORITY,  district = DISTRICT, da_number = DA_NUMBER, action = ACTION, lat = PROJ_LATITUDE, long = PROJ_LONGITUDE, cowardin = COWARDIN_NAME, water_lat = WATERS_LATITUDE, water_long = WATERS_LONGITUDE, linear_ft = AUTH_LINEAR_FT, acres = AUTH_FILL_ACRES, END_DATE)
+
+new_csv2 <- csv2009 %>% filter(ACTION == "Impact") %>% dplyr::select(PERMIT_AUTHORITY, district = DISTRICT, da_number = DA_NUMBER, action = ACTION, lat = PROJ_LATITUDE, long = PROJ_LONGITUDE, cowardin = COWARDIN_NAME, water_lat = WATERS_LATITUDE, water_long = WATERS_LONGITUDE, linear_ft = AUTH_LINEAR_FT, acres = AUTH_FILL_ACRES, END_DATE)
+
+new_csv3 <- csv2010 %>% filter(ACTION == "Impact") %>% dplyr::select(PERMIT_AUTHORITY,  district = DISTRICT, da_number = DA_NUMBER, action = ACTION, lat = PROJ_LATITUDE, long = PROJ_LONGITUDE, cowardin = COWARDIN_NAME, water_lat = WATERS_LATITUDE, water_long = WATERS_LONGITUDE, linear_ft = AUTH_LINEAR_FT, acres = AUTH_FILL_ACRES, END_DATE)
+
+new_csv4 <- csv2011 %>% filter(ACTION == "Impact") %>% dplyr::select( PERMIT_AUTHORITY, district = DISTRICT, da_number = DA_NUMBER, action = ACTION, lat = PROJ_LATITUDE, long = PROJ_LONGITUDE, cowardin = COWARDIN_NAME, water_lat = WATERS_LATITUDE, water_long = WATERS_LONGITUDE, linear_ft = AUTH_LINEAR_FT, acres = AUTH_FILL_ACRES, END_DATE)
+
+new_csv5 <- csv2012 %>% filter(ACTION == "Impact") %>% dplyr::select(district = DISTRICT, da_number = DA_NUMBER, action = ACTION, lat = PROJ_LATITUDE, long = PROJ_LONGITUDE, cowardin = COWARDIN_NAME, water_lat = WATERS_LATITUDE, water_long = WATERS_LONGITUDE, linear_ft = AUTH_LINEAR_FT, acres = AUTH_FILL_ACRES, END_DATE)
+new_csv5$PERMIT_AUTHORITY <- NA
+
+new_csv6 <- csv2013 %>% filter(ACTION == "Impact") %>% dplyr::select(PERMIT_AUTHORITY,  district = DISTRICT, da_number = DA_NUMBER, action = ACTION, lat = PROJ_LATITUDE, long = PROJ_LONGITUDE, cowardin = COWARDIN_NAME, water_lat = WATERS_LATITUDE, water_long = WATERS_LONGITUDE, linear_ft = AUTH_LINEAR_FT, acres = AUTH_FILL_ACRES, END_DATE)
+
+new_csv7 <- csv2014 %>% filter(ACTION == "Impact") %>% dplyr::select(PERMIT_AUTHORITY,  district = DISTRICT, da_number = DA_NUMBER, action = ACTION, lat = PROJ_LATITUDE, long = PROJ_LONGITUDE, cowardin = COWARDIN_NAME, water_lat = WATERS_LATITUDE, water_long = WATERS_LONGITUDE, linear_ft = AUTH_LINEAR_FT, acres = AUTH_FILL_ACRES, END_DATE)
+
+new_csv8 <- csv2015 %>% filter(Action == "Impact") %>% dplyr::select(PERMIT_AUTHORITY = "Permit Authority",  district = District, da_number = 'DA Number', action = Action, lat = 'Proj Latitude', long = 'Proj Longitude', cowardin = 'Cowardin Class', water_lat = 'Waters Latitude', water_long = 'Waters Longitude', linear_ft = 'Auth Linear Ft', acres = 'Auth Fill Acres', END_DATE = `End Date`)
+
+new_csv9 <- csv2016 %>% filter(ACTION == "Impact") %>% dplyr::select( PERMIT_AUTHORITY, district = DISTRICT, da_number = DA_NUMBER, action = ACTION, lat = PROJ_LATITUDE, long = PROJ_LONGITUDE, cowardin = COWARDIN_NAME, water_lat = WATERS_LATITUDE, water_long = WATERS_LONGITUDE, linear_ft = AUTH_LINEAR_FT, acres = AUTH_FILL_ACRES, END_DATE)
+
+new_csv10 <- csv2017 %>% filter(ACTION == "Impact") %>% dplyr::select( PERMIT_AUTHORITY, district = DISTRICT, da_number = DA_NUMBER, action = ACTION, lat = PROJ_LATITUDE, long = PROJ_LONGITUDE, cowardin = COWARDIN_NAME, water_lat = WATERS_LATITUDE, water_long = WATERS_LONGITUDE, linear_ft, acres = AUTH_FILL_ACRES, END_DATE)
+
+new_csv11 <- csv2018 %>% filter(ACTION == "Impact") %>% dplyr::select(PERMIT_AUTHORITY,  district = DISTRICT, da_number = DA_NUMBER, action = ACTION, lat = PROJ_LATITUDE, long = PROJ_LONGITUDE, cowardin = COWARDIN_NAME, water_lat = WATERS_LATITUDE, water_long = WATERS_LONGITUDE, linear_ft =AUTH_FILL_LENGTH_FT, acres = AUTH_FILL_ACRES, END_DATE)
+
+new_csv12 <- csv2019 %>% filter(ACTION == "Impact") %>% dplyr::select(PERMIT_AUTHORITY, district = DISTRICT, da_number = DA_NUMBER, action = ACTION, lat = PROJ_LATITUDE, long = PROJ_LONGITUDE, cowardin = COWARDIN_NAME, water_lat = WATERS_LATITUDE, water_long = WATERS_LONGITUDE, linear_ft, acres = AUTH_FILL_ACRES, END_DATE)
+
+complete_impacts <- rbind(new_csv1, new_csv2, new_csv3, new_csv4, new_csv5, new_csv6, new_csv7, new_csv8, new_csv9, new_csv10, new_csv11, new_csv12)
+complete_impacts$linear_ft <- as.numeric(complete_impacts$linear_ft)
+complete_impacts$acres <- as.numeric(complete_impacts$acres)
+sum(complete_impacts$linear_ft, na.rm = T)
+sum(complete_impacts$acres, na.rm = T)
+```
+
+Why am I still getting less than the complete impacts dataset?
+
+That dataset has LF measured as 3,087,612
+
+```{r}
+test1 <- csv2013 %>% filter(str_detect(END_DATE, 'Oct') | str_detect(END_DATE, 'Nov') | str_detect(END_DATE, 'Dec'))
+sum(test1$AUTH_LINEAR_FT, na.rm = T)
+sum(test1$AUTH_FILL_ACRES, na.rm = T)
+```
+Reason 1: 3032693 + 54,910 (extra data from OCT-DEC 2012 - because 2012 dataset and 2013 dataset both count this) = 3087603
+Missing 9 LF. That's fine.
+
+However, what this means is that we won't see that bump right before the policy comes into effect - potentially.
+
+
+Now I need to export as a csv. 
+
+```{r}
+write_csv(complete_impacts, "C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\complete_SWF_impacts_3.15.csv")
+```
+
+
+
+```{r}
+# sum the new number of unique permit numbers 
+
+# determine if this matches my FOIA request from last August
+x <- permit_uni %>% filter(permit %in% complete_impacts$da_number) #Exactly the same number of permits that I FOIA requested. Great!
+complete_impacts
+
+foia <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\FOIA DFW Unique Permits.csv")
+# Just to confirm that the permits are the same as the previous foia
+
+x$permit %in% foia$DA_NUMBER
+# Great. So my FOIA request was exactly what I needed. So now I can just use foia as my dataset.
+```
+
+# Filter 
+
+Filtering ORM (Demand for impacts) through actual permits purchased (RIBITS)
+
+```{r}
+  # If it does, good! Use that FOIA request and add that date to the unique ORM permits
+foia$DA_NUMBER   %in% complete_impacts$da_number
+complete_impacts$da_number %in% x$permit  
+
+complete_impacts
+
+some_orm <- foia %>% select(DA_NUMBER, fed_complete_date = `Fed Complete date`)
+# some_orm$DA_NUMBER %in% complete_impacts$da_number #all_again true. Good!
+p = complete_impacts %>% filter(da_number %in% some_orm$DA_NUMBER)
+some_orm$da_number <- some_orm$DA_NUMBER
+merge(some_orm, p, by="da_number") -> x_some_orm
+unique(x_some_orm$da_number)
+# captured 305 permits
+# recall there may be a few others that are missing because they are weird ("SWF-XX, SWF-XX" in one entry)
+
+x_some_orm$linear_ft %>% sum(na.rm = T) # about 6000 less linear feet now
+test <- x_some_orm  %>% filter(str_detect(END_DATE, 'OCT-12') | str_detect(END_DATE, 'NOV-12') | str_detect(END_DATE, 'DEC-12')) 
+test$linear_ft %>% sum(na.rm = T)
+# within my original filtered orm (filtered_orm_through_complete_impacts.csv) - I have 13723 LF during this period. Within my new dataset, I have 7229.163. This approximates what I've determined - I double counted OCT 12-DEC 12 in earlier analyses. 
+x_some_orm$acres %>% sum(na.rm = T) # about 4 less acres
+
+```
+x_some_orm however is what I want - this is the filtered orm dataset. 
+
+```{r}
+write_csv(x_some_orm, "C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\filtered_orm_3.15.csv")
+x_some_orm <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\filtered_orm_3.15.csv")
+x_some_orm <- mutate(x_some_orm,
+   year_month = paste(year, month, sep = '-'))
+```
+
+
+Now I need to do three things.
+
+
+2. Add one ORM entry from Feb_update_no_cowardin_entries.r
+
+```{r}
+x_some_orm %>% filter(DA_NUMBER == "SWF-2005-00584")
+# SWF-2005-00584
+x_some_orm %>% filter(DA_NUMBER != "SWF-2005-00584") -> updated_some_orm
+
+extra_permit <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.3_research\\2021 Feb Update No_cowardin_entries.csv")
+
+updated_some_orm <- updated_some_orm %>% select(da_number, district, action, lat, long, cowardin, water_lat, water_long, linear_ft, acres, END_DATE,fed_comp_date =  fed_complete_date, month, year, year_month)
+
+extra_permit <- extra_permit %>% filter(da_number == "SWF-2005-00584")
+
+rbind(updated_some_orm, extra_permit) -> updated_some_orm
+
+write_csv(updated_some_orm, "C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\filtered_orm_3.15.csv")
+
+```
+
+1. Add FOIA request data for 9 permits from 2011
+```{r}
+missing_piece <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\missing_2011_permits_FOIA_complete.csv")
+# 1. first, make sure these fall within the eight banks dataset
+missing_piece$da_number %in% rib$Permit # TRUE
+# 2. bring in the ORM dataset from this time period
+# 3. Add fed complete date to the permit records
+puzzle <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\missing_2011_3_months_impacts.csv")
+missing_piece$da_number %in% puzzle$DA_NUMBER # TRUE
+put_together <- puzzle %>% filter(DA_NUMBER %in% missing_piece$da_number) 
+(put_together$DA_NUMBER) %in% missing_piece$da_number
+# 4. bind to some orm dataset 
+put_together <- put_together %>% select(da_number = DA_NUMBER, district = DISTRICT, action = ACTION, lat = PROJ_LATITUDE,long = PROJ_LONGITUDE, cowardin= COWARDIN_NAME, water_lat = WATERS_LATITUDE, water_long = WATERS_LONGITUDE, linear_ft = AUTH_LINEAR_FT,acres= AUTH_FILL_ACRES, END_DATE)
+put_together <- right_join(missing_piece, put_together, by = "da_number")
+write_csv(put_together, "C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\missing_2011_3.15.csv")
+put_together <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\missing_2011_3.15.csv")
+ 
+put_together <- mutate(put_together,
+   year_month = paste(year, month, sep = '-'))
+put_together <- put_together %>% select(da_number, district, action, lat, long, cowardin, water_lat, water_long, linear_ft, acres, cowardin, water_lat, water_long, linear_ft, acres, END_DATE,fed_comp_date= fed_complete_date, month, year, year_month)
+
+updated_some_orm <- rbind(updated_some_orm, put_together) 
+
+write_csv(updated_some_orm, "C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\Essential\\filtered_orm_3.15_with_2011.csv")
+```
+3. Look into the doubles dataset from RIBITS
+
+```{r}
+#1.
+doubles
+sep1 <- (str_split_fixed(doubles$Permit, ", ", 2))
+# There are four permits that are present in this dataset that should be in filtered ORM. I may need to put in one more FOIA request for them. I checked the original ORM dataset, and they are present. These are:
+# SWF-2017-00043, SWF-2016-00125, SWF-2018-00042, SWF-2016-00277
+
+
+# Here is space to add this to my filtered ORM doc
+
+four <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\foia_4_permits_3.24.csv")
+filtered <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\Essential\\filtered_orm_3.15_with_2011.csv")
+complete <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\complete_SWF_impacts_3.15.csv")
+four$Permit %in% filtered$da_number #good, not present in the new dataset
+four$Permit %in% complete$da_number #good, present in the old dataset
+four$da_number <- four$Permit
+four %>% filter(Permit %in% complete$da_number)
+four_complete <- complete %>% filter(da_number %in% four$Permit)
+four_complete <- left_join(four_complete, four, by = "da_number")
+four_complete <- four_complete %>% dplyr::select(district, da_number, action, lat, long, cowardin, water_lat, water_long, linear_ft, acres, END_DATE, fed_comp_date = `fed complete date`) %>% mutate( cow_class = ifelse(grepl("RIV",four_complete$cowardin), "riv", ifelse(grepl("PAL", four_complete$cowardin), "pal", "other")))
+filtered <- filtered %>% select(district, da_number, action, lat, long, cowardin, water_lat, water_long, linear_ft, acres, END_DATE, fed_comp_date, cow_class)
+test <- rbind(filtered, four_complete)
+write_csv(test, "C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\filtered_orm_3.24_all_updated_permits.csv")
+```
+
+
+```{r}
+conversion = "C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\Credits_To_LF_To_AC_conversion.csv"
+read_csv(conversion) -> conversion1
+
+# first let's figure out what's riverine and what's palustrine
+rib$cowardin <- ifelse((grepl("Int", rib$`Credit Classification`) | grepl(  "Eph", rib$`Credit Classification`) | grepl(  "Per", rib$`Credit Classification`) | grepl( "INT", rib$`Credit Classification`) | grepl(  "EPH", rib$`Credit Classification`) | grepl( "PER", rib$`Credit Classification`)), "riv", "pal")
+
+rib$convertedLF <- ifelse((rib$Bank == "bill_moore" & rib$cowardin == "riv"), 1.547824479* rib$Credits, ifelse((rib$Bank == "mill_branch" & rib$cowardin == "riv"), 1.956652966* rib$Credits, ifelse((rib$Bank == "red_oak" & rib$cowardin == "riv"), 2.011190435* rib$Credits, ifelse((rib$Bank  == "rockin_k"& rib$cowardin == "riv"), 1.960948272* rib$Credits, NA))))
+
+rib_ac <- rib %>% filter(is.na(convertedLF))
+sum(rib_ac$Acres, na.rm = T)
+sum(rib_ac$Credits, na.rm = T)
+
+rib$convertedLF %>% sum(na.rm = T)
+write_csv(rib, "C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\Essential\\complete_ribbits_3.16.csv") #adding year and month
+rib <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\Essential\\complete_ribbits_3.16.csv")
+rib <- mutate(rib,
+   year_month = paste(year, month, sep = '-'))
+# There's about 100 less acres than credits of wetlands. I can't imagine this makes a big difference. What did I do previously?
+# It looks like I took it at face value. So we're set. ORM is ready, RIBITS is ready.
+
+# checking that the ribits data here reflects eight_banks_updated
+# I discovered that eight_banks_updated had some mill branch trail entries without the correct formula added. It was counting credits as linear feet. Checking all other banks now. Doing this in R maintains correct work however.
+rib %>% filter(Bank == "trinity_river") -> test
+sum(test$convertedLF, na.rm = T)
+
+```
+
+
+# Sum by year_month (Aggregation)
+
+```{r}
+#filtered_orm <- read_csv( "C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\Essential\\filtered_orm_3.15_with_2011.csv")
+#filtered_orm$cow_class <- ifelse(grepl("RIV", filtered_orm$cowardin), "riv", ifelse(grepl("PAL", filtered_orm$cowardin), "pal", "other"))
+#write_csv(filtered_orm, "C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\Essential\\filtered_orm_3.15_with_2011.csv")
+
+filtered_orm <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\Essential\\filtered_orm_3.24_all_updated_permits.csv")
+filtered_orm <- filtered_orm %>% mutate(filtered_orm,
+   year_month = paste(year, month, sep = '-'))
+
+agg_orm <- aggregate(cbind(orm_filtered_LF = filtered_orm$linear_ft, orm_filtered_acres = filtered_orm$acres), by=list(year_month=filtered_orm$year_month, cow = filtered_orm$cow_class), FUN=sum, na.rm = T) 
+sum(agg_orm$orm_filtered_acres) #matches with sum in csv
+agg_orm_riv <- agg_orm %>% filter(cow == "riv") %>% select(year_month, cow, orm_riv_LF = orm_filtered_LF, orm_riv_acres = orm_filtered_acres)
+agg_orm_pal <- agg_orm %>% filter(cow == "pal") %>% select(year_month, cow, orm_pal_LF = orm_filtered_LF, orm_pal_acres = orm_filtered_acres)
+
+
+rib <- rib %>% filter(Type == "Wdr")
+agg_rib <- aggregate(cbind(rib_LF = rib$convertedLF, rib_acres = rib$Acres, rib_credits = rib$Credits), by=list(year_month=rib$year_month, cow = rib$cowardin), FUN=sum, na.rm = T) 
+sum(agg_rib$rib_acres) #matches with sum in csv
+agg_rib_riv <- agg_rib %>% filter(cow == "riv")%>% select(year_month, cow, rib_riv_LF = rib_LF, rib_riv_acres = rib_acres, rib_riv_credits = rib_credits)
+agg_rib_pal <- agg_rib %>% filter(cow == "pal")%>% select(year_month, cow, rib_pal_LF = rib_LF, rib_pal_acres = rib_acres, rib_pal_credits = rib_credits)
+
+year_month <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\Essential\\year_month_coincident.csv")
+
+all_1 <- full_join(year_month,agg_orm_riv, by= "year_month" )
+all_1 <- full_join(all_1,agg_orm_pal, by= "year_month" )
+all_1 <- full_join(all_1,agg_rib_riv, by= "year_month" )
+all_1 <- full_join(all_1,agg_rib_pal, by= "year_month" )
+
+write_csv(all_1, "C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\Essential\\all_1_3.16.csv")
+
+```
+
+I did some analysis to determine why the numbers are different between all_1_3.16.csv and all_1.28.csv. This is in slight_variation_in_complete_datasets.csv. Turns out its for a few reasons: 1. I have not removed the potentially inaccurate data pre-2007/10, so this inflates the new dataset. 2. I added the FOIAed data from the missing 2011 data as well as that one extra permit that I was able to identify as impacting streams, and that one permit from the 2012 and 2013 datasets that is doubled in the 2012 where it is halved in the 2013 dataset (I used the 2012 entry as it was logically twice the amount as other entries for the same permit, being that it impacted twice the amount). So now, the current data is clear and accurate for what I've been able to pull. There are 4 more permits that could be added, based on permits in RIBITS that have two permits within one entry, and hopefully my FOIA comes through. Additionally, there was one permit that impacted NA cowardin classes, and those could not be sucessfully identified for me by the USACE. Finally, the data from 2020 probably would add additional entries that are currently sitting in RIBITS. 
+
+# Primary Hurdle Analysis 
+
+To manage the nuances in the monthly impact and mitigation sales dependent variables and their over-dispersion (i.e., many zero entries), we employed a statistical regression technique known as a hurdle model (Martin et al. 2018; Mullahy 1986), which contains two parts: a “zero hurdle model,” which determines whether the dependent variable is equal to zero or is positive (i.e., a logistic regression; Berkson 1944), and a count model, which estimates the size of the non-zero dependent variable (i.e., a gamma-distributed generalized linear model (GLM), which models positively skewed data with no negative entries [i.e., count data; Ng and Cribbie 2017] while employing a log link to connect the dependent variable to the independent variables and log transform the independent variables; Agresti 2015). 
+
+```{r}
+all <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\Essential\\all_5.20_prime_with_zeros.csv")
+#all_test <- all %>% 
+# added month in Excel and changed NAs to 0 after 2001-5 for the rIBITS entries (2001-6 is when the first RIBITS transaction occurred [it was a credit release]) and changed NAs to 0 after 2007-4, when the first ORM transaction is recorded.
+#library(zoo)
+#all$date <- as.yearmon(paste(all$year, all$month), "%Y %m")
+#all$after_SMM <- ifelse((all$month_as_num > 165), 1, 0) #September 2013 - the month before SMM was released
+#all$after_SMM_T <- ifelse((all$month_as_num > 165), TRUE, FALSE)
+#write_csv(all, "C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\Essential\\all_2_3.16.csv")
+#all <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\Essential\\all_2_3.16.csv")
+all_orm <- all %>% select(year_month, date, year, month, month_as_num, orm_riv_LF, orm_riv_acres, orm_pal_LF, orm_pal_acres, after_SMM, after_SMM_T)
+all_orm %>% filter(month_as_num > 93) -> orm_filtered
+all2 <- all %>% filter(month_as_num > 93 & month_as_num <238)
+
+```
+
+The all dataset will be for RIBITS, and the orm_filtered dataset will be for ORM (now after 2007-10)
+
+
+```{r}
+quick_glms_all <- function(beta1) {
+ 
+   non_zero <- ifelse(beta1 > 0, 1, 0)
+  
+  d <- tibble(beta1 =beta1, non_zero, month = all$month_as_num, after_SMM = all$after_SMM)
+  d <- d %>% mutate(after_SMM_true = ifelse(after_SMM == 1, TRUE, FALSE))
+  x <- summary(glm(beta1 ~ month * after_SMM, data = subset(d, non_zero == 1), family = Gamma(link = log)))
+  print(t(t(x$coefficients[,4])))
+  # printing p-values to check
+  for(i in t(x$coefficients[,4])) {
+    ifelse(i > 0.05, print("not significant"), print("significant"))
+  }
+  
+  y <- summary(glm(non_zero ~ month * after_SMM, data = d, family = binomial(link = logit)))
+  print(t(t(y$coefficients[,4])))
+  # printing p-values to check
+  for(i in t(y$coefficients[,4])) {
+    ifelse(i > 0.05, print("not significant"), print("significant"))
+  }
+}
+
+quick_glms_all(all$rib_pal_acres) # significant 
+
+
+
+
+quick_glms_all(all$rib_pal_credits) # significant 
+quick_glms_all(all$rib_pal_LF)# nothing here
+quick_glms_all(all$rib_riv_LF) # not sig as expeceted
+quick_glms_all(all$rib_riv_acres) # not sig as expected
+quick_glms_all(all$rib_riv_credits) # not sig as expected
+
+
+# now the one for ORM
+quick_glms_orm <- function(beta1) {
+ 
+   non_zero <- ifelse(beta1 > 0, 1, 0)
+  
+  d <- tibble(beta1 =beta1, non_zero, month = all_orm$month_as_num, after_SMM = all_orm$after_SMM)
+  d <- d %>% mutate(after_SMM_true = ifelse(after_SMM == 1, TRUE, FALSE))
+  x <- summary(glm(beta1 ~ month * after_SMM, data = subset(d, non_zero == 1), family = Gamma(link = log)))
+  print(t(t(x$coefficients[,4])))
+  # printing p-values to check
+  for(i in t(x$coefficients[,4])) {
+    ifelse(i > 0.05, print("not significant"), print("significant"))
+  }
+  
+  y <- summary(glm(non_zero ~ month * after_SMM, data = d, family = binomial(link = logit)))
+  print(t(t(y$coefficients[,4])))
+  # printing p-values to check
+  for(i in t(y$coefficients[,4])) {
+    ifelse(i > 0.05, print("not significant"), print("significant"))
+  }
+}
+
+quick_glms_orm(all_orm$orm_riv_LF) # sig
+quick_glms_orm(all_orm$orm_riv_acres) # not sig
+quick_glms_orm(all_orm$orm_pal_LF) # not sig
+
+
+
+
+```
+
+
+```{r}
+full_glms_all2 <- function(beta1) {
+  
+  non_zero <- ifelse(beta1 > 0, 1, 0)
+ 
+  d <- tibble(beta1 =beta1, non_zero, month = all2$month_as_num, after_SMM = all2$after_SMM)
+  d <- d %>% mutate(after_SMM_true = ifelse(after_SMM == 1, TRUE, FALSE))
+  x <- summary(glm(beta1 ~ month * after_SMM, data = subset(d, non_zero == 1), family = Gamma(link = "log")))
+  print(x)
+  print(exp(x$coefficients))
+
+  # printing full summary
+  
+  y <- summary(glm(non_zero ~ month * after_SMM, data = d, family = binomial(link = logit)))
+  print(y)
+  print(exp(y$coefficients))
+  # printing full summary
+  z = glm(beta1 ~ month * after_SMM, data = subset(d, non_zero == 1), family = Gamma(link = log))
+  print((exp(confint(z))))
+z2 = glm(non_zero ~ month * after_SMM, data = d, family = binomial(link = logit))
+print(exp(confint(z2)))
+print(logLik(z))
+print(logLik(z2))
+  }
+
+full_glms_all2(all2$rib_pal_credits) # exactly what I expected. And low AIC too, which is great. 
+
+ full_glms_all2(all2$rib_riv_credits) # exactly what I expected. And low AIC too, which is great.
+ 
+ full_glms_all2(all2$orm_riv_LF_new)
+ full_glms_all2(all2$orm_riv_LF)
+
+non_zero <- ifelse(all$rib_pal_acres > 0, 1, 0)
+d <- tibble(beta1 =all$rib_pal_acres, non_zero, month = all$month_as_num, after_SMM = all$after_SMM)
+d <- d %>% mutate(after_SMM_true = ifelse(after_SMM == 1, TRUE, FALSE))
+d2 <- subset(d, non_zero == 1)
+t.test(d2$beta1[1:101], d2$beta1[102:154])
+t.test(d$beta1[1:165], d$beta1[166:252])
+median(d2$beta1[1:101], na.rm = T)
+median(d2$beta1[102:154], na.rm = T)
+t.test(d2$beta1)
+
+non_zero <- ifelse(all$rib_pal_credits > 0, 1, 0)
+d <- tibble(beta1 =all$rib_pal_credits, non_zero, month = all$month_as_num, after_SMM = all$after_SMM)
+d <- d %>% mutate(after_SMM_true = ifelse(after_SMM == 1, TRUE, FALSE))
+d2 <- subset(d, non_zero == 1)
+t.test(d2$beta1[1:101], d2$beta1[102:170])
+median(d2$beta1[1:101], na.rm = T)
+median(d2$beta1[102:170], na.rm = T)
+t.test(d2$beta1)
+```
+
+
+```{r}
+full_glms_orm <- function(beta1) {
+  
+  non_zero <- ifelse(beta1 > 0, 1, 0)
+  
+  
+  d <- tibble(beta1 =beta1, non_zero, month = all_orm$month_as_num, after_SMM = all_orm$after_SMM)
+  d <- d %>% mutate(after_SMM_true = ifelse(after_SMM == 1, TRUE, FALSE))
+  x <- summary(glm(beta1 ~ month * after_SMM, data = subset(d, non_zero == 1), family = Gamma(link = log)))
+  print(x)
+  # printing full summary
+  
+  y <- summary(glm(non_zero ~ month * after_SMM, data = d, family = binomial(link = logit)))
+  print(y)
+  # printing full summary
+  z = glm(beta1 ~ month * after_SMM, data = subset(d, non_zero == 1), family = Gamma(link = log))
+   print((confint(z)))
+  z2 = glm(non_zero ~ month * after_SMM, data = d, family = binomial(link = logit))
+ print((confint(z2)))
+  }
+
+full_glms_orm(all_orm$orm_riv_LF) #  significant - decline is significant, rise is not really. Slightly more significant than just month.
+full_glms_orm(all_orm$orm_pal_acres) # not significant
+
+
+non_zero <- ifelse(all$orm_riv_LF > 0, 1, 0)
+d <- tibble(beta1 =all$orm_riv_LF, non_zero, month = all$month_as_num, after_SMM = all$after_SMM)
+d <- d %>% mutate(after_SMM_true = ifelse(after_SMM == 1, TRUE, FALSE))
+d2 <- subset(d, non_zero == 1)
+t.test(d2$beta1[1:52], d2$beta1[53:107])
+median(d2$beta1[1:52], na.rm = T)
+median(d2$beta1[53:107], na.rm = T)
+t.test(d2$beta1)
+
+
+
+non_zero <- ifelse(all$orm_riv_acres > 0, 1, 0)
+d <- tibble(beta1 =all$orm_riv_acres, non_zero, month = all$month_as_num, after_SMM = all$after_SMM)
+d <- d %>% mutate(after_SMM_true = ifelse(after_SMM == 1, TRUE, FALSE))
+d2 <- subset(d, non_zero == 1)
+t.test(d2$beta1[1:42], d2$beta1[43:100])
+median(d2$beta1[1:42], na.rm = T)
+median(d2$beta1[43:100], na.rm = T)
+ t.test(d2$beta1)
+ 
+ 
+ full_glms_orm(all_orm$orm_pal_acres)
+ non_zero <- ifelse(all$orm_pal_acres > 0, 1, 0)
+d <- tibble(beta1 =all$orm_pal_acres, non_zero, month = all$month_as_num, after_SMM = all$after_SMM)
+d <- d %>% mutate(after_SMM_true = ifelse(after_SMM == 1, TRUE, FALSE))
+d2 <- subset(d, non_zero == 1)
+t.test(d2$beta1[1:42], d2$beta1[43:100])
+median(d2$beta1[1:42], na.rm = T)
+median(d2$beta1[43:100], na.rm = T)
+ t.test(d2$beta1)
+ 
+```
+
+
+# Breakpoint Regression
+
+We also implemented a “breakpoint regression” for each of the models. Breakpoint regression attempts to determine the true “breakpoint” of the model based on the data alone; i.e., it does not consider the actual implementation date of the SMM and instead uses patterns in the data to estimate inflection points (Muggeo 2003). This can help to understand whether the SMM is most likely the reason for hypothesized shifts in impact or mitigation behavior, or if additional, unobserved factors may have played a role. 
+
+```{r}
+# orm_riv_LF
+
+all_break <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\Essential\\all_4_4.16_no_zeros.csv")
+all_test <- all_break[94:237,] # data is between 2007-10 and 2019-09
+all_break2 <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\Essential\\all_5.20_prime_with_NAs.csv")
+
+all_test2<- all_break2[94:237,]
+x <- (glm(orm_riv_LF_new ~ month_as_num, data = all_test2, family = Gamma(link = log)))
+library(segmented)
+month_as_num <- all_test$month_as_num
+summary(segmented(x, seg.Z = ~month_as_num))
+confint(segmented(x, seg.Z = ~month_as_num))
+
+x <- (glm(orm_pal_acres_new ~ month_as_num, data = all_test2, family = Gamma(link = log)))
+library(segmented)
+month_as_num <- all_test$month_as_num
+summary(segmented(x, seg.Z = ~month_as_num))
+confint(segmented(x, seg.Z = ~month_as_num))
+z =segmented(x, seg.Z = ~month_as_num)
+confint(z)
+plot(z, conf.level=0.95, shade=TRUE )
+points(z, link=TRUE, col=2)
+
+all_break <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\Essential\\all_4_4.16_no_zeros.csv")
+all_test <- all_break[94:237,] # data is between 2007-10 and 2019-09
+
+x <- (glm(orm_pal_acres ~ month_as_num, data = all_test, family = Gamma(link = log)))
+library(segmented)
+month_as_num <- all_test$month_as_num
+summary(segmented(x, seg.Z = ~month_as_num))
+confint(segmented(x, seg.Z = ~month_as_num))
+
+x <- (glm(rib_riv_credits ~ month_as_num, data = all_test, family = Gamma(link = log)))
+library(segmented)
+month_as_num <- all_test$month_as_num
+summary(segmented(x, seg.Z = ~month_as_num))
+confint(segmented(x, seg.Z = ~month_as_num))
+
+
+# the following code in this block is no longer accurate.
+all_test <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\Essential\\all_3_3.24.csv")
+non_zero <- ifelse(all_test$orm_riv_LF > 0, 1, 0)
+d <- tibble(beta1 =all_test$orm_riv_LF, non_zero, month = all_test$month_as_num, after_SMM = all_test$after_SMM)
+d <- d %>% mutate(after_SMM_true = ifelse(after_SMM == 1, TRUE, FALSE))
+d2 <- d[89:237, ]
+d2 <- subset(d2, non_zero ==1)
+x <- (glm(beta1 ~ month, data = d2, family = Gamma(link = log)))
+library(segmented)
+month_as_num <- d2$month
+summary(segmented(x, seg.Z = ~month_as_num, psi = 165.5))
+z =segmented(x, seg.Z = ~month_as_num)
+# psi1.month_as_num 211.344 SE 13.137
+# about 3 years after the policy came into effect. This is where I used the five months in 2007 that I later drop. It has a suprisingly strong effect on determining breakpoint. Now, with updated data (see above), we get a more accurate breakpoint.
+
+all_test <- read_csv("C:\\Users\\Owner\\Documents\\Fort Worth Research\\Research\\3.14_research_redone_R_code\\Essential\\all_3_3.24.csv")
+non_zero <- ifelse(all_test$rib_pal_acres > 0, 1, 0)
+d <- tibble(beta1 =all_test$rib_pal_acres, non_zero, month = all_test$month_as_num, after_SMM = all_test$after_SMM)
+d <- d %>% mutate(after_SMM_true = ifelse(after_SMM == 1, TRUE, FALSE))
+d2 <- d[18:250, ]
+d2 <- subset(d2, non_zero ==1)
+x <- (glm(beta1 ~ month, data = d2, family = Gamma(link = log)))
+library(segmented)
+month_as_num <- d2$month
+summary(segmented(x, seg.Z = ~month_as_num, psi = 165.5))
+summary(segmented(x, seg.Z = ~month_as_num))
+
+z =segmented(x, seg.Z = ~month_as_num)
+
+plot(z, conf.level=0.95, shade=TRUE )
+points(z, link=TRUE, col=2)
+# psi1.month_as_num 189.525  SE 7.339
+# about 2 years after the policy came into effect.
+
+```
+
+
+
+
+
