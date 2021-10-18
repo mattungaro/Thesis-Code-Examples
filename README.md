@@ -10,7 +10,7 @@ statistical_analysis_sample2_supplementary_material.r - This is additional suppl
 includes an analysis of the wetland credit market before the Stream Mitigation Method (SMM), my policy of interest, the supply of credits before and after the SMM, and an 
 analysis with the Coincident Economic Index (Crone and Clayton-Matthews 2005) included as a variable. 
 
-Other data -- 
+Other data:
 
 - Three csvs sharing my aggregated data at three different points in time. The second one (5/20) includes added credit demand variables. The 5.22 file contains even more 
 variables, including credit supply (termed cred_P in my dataset).
