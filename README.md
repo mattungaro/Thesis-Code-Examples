@@ -1,9 +1,5 @@
 # Thesis_Code_Examples
 
-gathering_permits_agg_Hurdle_Breakpoint.rmd - Using the tidyverse, knitr, zoo, and segmented packages, I gathered, prepared, and analyzed my data using specially designed
-functions for hurdle model analyses and breakpoint model analyses. Note that this is not my final script used in my final analysis, but it highlights the different aspects
-of the work that I did on this project. 
-
 statistical_analysis_sample.r - A simple analysis of my data once I added in new information from a recently released 2020 dataset. This includes basic summary statistics.
 
 statistical_analysis_sample2_supplementary_material.r - This is additional supplementary analyses included in my final paper outside of the main body of my thesis. This analysis
